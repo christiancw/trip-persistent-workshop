@@ -7,9 +7,11 @@ const Restaurants = models.Restaurant;
 const Activities = models.Activity;
 
 router.get('/options', function(req, res, next){
-  Restaurants.findAll()
-  .then(function(foundRestaurants){
-    res.json(foundRestaurants);
+  Promise.all([Restaurants.findAll(), Hotels.findAll(), Activities.findAll()])
+  .then(function(foundAttractions){
+    let result = {restaurants: foundAttractions[0],
+    hotels: foundAttractions[1], activities: foundAttractions[2]};
+    res.json(result);
   })
   .catch(next);
 });
