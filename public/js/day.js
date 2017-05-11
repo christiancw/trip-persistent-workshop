@@ -99,21 +99,29 @@ var dayModule = (function () {
   // ~~~~~~~~~~~~~~~~~~~~~~~
   Day.prototype.addAttraction = function (attraction) {
     // adding to the day object
-    switch (attraction.type) {
-      case 'hotel':
-        if (this.hotel) this.hotel.hide();
-        this.hotel = attraction;
-        break;
-      case 'restaurant':
-        utilsModule.pushUnique(this.restaurants, attraction);
-        break;
-      case 'activity':
-        utilsModule.pushUnique(this.activities, attraction);
-        break;
-      default: console.error('bad type:', attraction);
-    }
-    // activating UI
-    attraction.show();
+    // console.log(attraction);
+    let self = this;
+    $.ajax({
+      method: "POST",
+      url: '/days/' + this.number + '/' + attraction.type,
+      data: {id: attraction.id}
+    }).then(function(json){
+      switch (attraction.type) {
+        case 'hotel':
+          if (self.hotel) self.hotel.hide();
+          self.hotel = attraction;
+          break;
+        case 'restaurant':
+          utilsModule.pushUnique(self.restaurants, attraction);
+          break;
+        case 'activity':
+          utilsModule.pushUnique(self.activities, attraction);
+          break;
+        default: console.error('bad type:', attraction);
+      }
+      // activating UI
+      attraction.show();
+    })
   };
 
 
@@ -123,20 +131,29 @@ var dayModule = (function () {
   // ~~~~~~~~~~~~~~~~~~~~~~~
   Day.prototype.removeAttraction = function (attraction) {
     // removing from the day object
-    switch (attraction.type) {
-      case 'hotel':
-        this.hotel = null;
-        break;
-      case 'restaurant':
-        utilsModule.remove(this.restaurants, attraction);
-        break;
-      case 'activity':
-        utilsModule.remove(this.activities, attraction);
-        break;
-      default: console.error('bad type:', attraction);
-    }
-    // deactivating UI
-    attraction.hide();
+    let self = this;
+    $.ajax({
+      method: 'POST',
+      url: '/days/' + this.number + "/remove",
+      data: {id: attraction.id, type: attraction.type} 
+    }).then(function(json) {
+      switch (attraction.type) {
+        case 'hotel':
+          self.hotel = null;
+          break;
+        case 'restaurant':
+          utilsModule.remove(self.restaurants, attraction);
+          break;
+        case 'activity':
+          utilsModule.remove(self.activities, attraction);
+          break;
+        default: console.error('bad type:', attraction);
+      }
+      // deactivating UI
+      attraction.hide();
+    });
+
+
   };
 
   // globally accessible module methods

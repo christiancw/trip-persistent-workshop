@@ -51,7 +51,7 @@ app.use(function (err, req, res, next) {
 var port = 3000;
 app.listen(port, function () {
   console.log('The server is listening closely on port', port);
-  db.sync( { force : true})
+  db.sync( { force : false})
   .then(function () {
     console.log('Synchronated the database');
   })
