@@ -134,7 +134,7 @@ var dayModule = (function () {
     let self = this;
     $.ajax({
       method: 'POST',
-      url: '/days/' + this.number + "/remove",
+      url: '/days/' + this.number + "/removeAttraction",
       data: {id: attraction.id, type: attraction.type} 
     }).then(function(json) {
       switch (attraction.type) {

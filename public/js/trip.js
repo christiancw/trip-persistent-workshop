@@ -74,16 +74,36 @@ var tripModule = (function () {
   function deleteCurrentDay () {
     // prevent deleting last day
     if (days.length < 2 || !currentDay) return;
-    // remove from the collection
-    var index = days.indexOf(currentDay),
-      previousDay = days.splice(index, 1)[0],
-      newCurrent = days[index] || days[index - 1];
-    // fix the remaining day numbers
-    days.forEach(function (day, i) {
-      day.setNumber(i + 1);
-    });
-    switchTo(newCurrent);
-    previousDay.hideButton();
+
+    $.ajax({
+      method: 'POST',
+      url: '/days/' + currentDay.number + "/removeDay"
+    }).then(function(json) {
+      // remove from the collection
+      var index = days.indexOf(currentDay),
+        previousDay = days.splice(index, 1)[0],
+        newCurrent = days[index] || days[index - 1];
+      // fix the remaining day numbers
+      var updates = [];
+      days.forEach(function (day, i) {
+        // ajax
+        var updateAjax = $.ajax({
+          method: 'PUT',
+          url: '/days/update/' + day.id,
+          data: {
+            newNum: i + 1
+          }
+        });
+        day.setNumber(i + 1);
+        updates.push(updateAjax);
+      });
+
+      Promise.all(updates)
+      .then(function(jsonArr) {
+        switchTo(newCurrent);
+        previousDay.hideButton();
+      })
+    })
   }
 
   // globally accessible module methods
@@ -101,7 +121,7 @@ var tripModule = (function () {
       }).then(function(databaseDays){
         databaseDays.forEach((day) => {
           let newDay = dayModule.create(day);
-          // console.log(newDay);
+          console.log(newDay);
           days.push(newDay);
           switchTo(newDay);
         });

@@ -22,14 +22,38 @@ router.get('/days/:id', function(req, res, next){
 
 router.get('/days', function(req, res, next){
   Days.findAll({
-    include: [Hotels, Restaurants, Activities]
+    include: [Hotels, Restaurants, Activities],
+    order: ["number"]
   })
   .then(function(foundDays){
-    console.log(foundDays);
     res.json(foundDays);
   })
   .catch(next);
 });
+
+router.post("/days/:id/removeDay", function(req, res, next) {
+  let dayNum = req.params.id;
+  Days.destroy({
+    where: {
+      number: dayNum
+    }
+  }).then(function(day) {
+    res.status(201).json(day);
+  }).catch(next);
+});
+
+router.put('/days/update/:id', function(req, res, next){
+  let id = req.params.id;
+  Days.update({
+    number: req.body.newNum
+  }, {
+    where: {
+      id: id
+    }
+  }).then(function(day){
+    res.status(201).json(day);
+  }).catch(next);
+})
 
 router.post('/days/add/:id', function(req, res, next) {
   let dayNum = req.params.id;
@@ -40,7 +64,7 @@ router.post('/days/add/:id', function(req, res, next) {
   }).catch(next);
 });
 
-router.post('/days/:id/remove', function(req, res, next) {
+router.post('/days/:id/removeAttraction', function(req, res, next) {
   let type = req.body.type;
   console.log(type);
   switch(type){
